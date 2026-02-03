@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NEON TERMINAL</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html,body{
+  margin:0;height:100%;
+  background:black;color:#7CFF7C;
+  font-family:Consolas, monospace;
+  overflow:hidden;
+}
+#terminal{
+  padding:15px;height:100%;
+  overflow-y:auto;
+}
+.line{margin:4px 0;white-space:pre-wrap}
+.cmd{color:#3CFFB4}
+.ok{color:#76ff9e}
+.err{color:#ff6b6b}
+.dim{color:#4faa4f}
+.prompt{display:flex}
+.prompt span{color:#3CFFB4;margin-right:6px}
+.prompt input{
+  background:black;border:none;outline:none;
+  color:#7CFF7C;font-family:inherit;flex:1;
+}
+</style>
+</head>
+
+<body>
+<div id="terminal"></div>
+
+<script>
+const VERSION = "NEON TERMINAL v6.3";
+const term = document.getElementById("terminal");
+
+/* helpers */
+function log(text, cls=""){
+  const d=document.createElement("div");
+  d.className="line "+cls;
+  d.textContent=text;
+  term.appendChild(d);
+  term.scrollTop=term.scrollHeight;
+}
+function rand(n){return Math.floor(Math.random()*n)}
+function fakeIP(){return `203.${rand(200)}.${rand(200)}.${rand(200)}`}
+function fakePassword(){
+  // looks like a token, not a real password
+  return "tok_"+Math.random().toString(36).slice(2,10)+"_"+rand(9999);
+}
+function fakeUserId(){
+  return "UID-"+(rand(90000000)+10000000);
+}
+function fakeJoinDate(){
+  // random date between 2016-01-01 and 2026-02-03
+  const start = new Date("2016-01-01T00:00:00Z").getTime();
+  const end   = new Date("2026-02-03T00:00:00Z").getTime();
+  const t = start + Math.floor(Math.random()*(end-start));
+  const d = new Date(t);
+  const yyyy = d.getUTCFullYear();
+  const mm = String(d.getUTCMonth()+1).padStart(2,"0");
+  const dd = String(d.getUTCDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+function fakeAddress(){
+  const streets=["Cipher St","Kernel Ave","Packet Rd","Root Blvd","Glitch Way"];
+  const cities=["Neo York","Null Berlin","Fake Tokyo","Mock Paris","Echo Lagos"];
+  return `${rand(999)+1} ${streets[rand(streets.length)]}, ${cities[rand(cities.length)]}`;
+}
+function progress(lines, done){
+  let i=0;
+  const t=setInterval(()=>{
+    if(i<lines.length){
+      log(lines[i],"dim");
+      i++;
+    }else{
+      clearInterval(t);
+      done();
+    }
+  },180);
+}
+
+/* boot */
+log(VERSION,"ok");
+log("SECURE SESSION INITIALIZED","dim");
+log("TYPE 'help' FOR COMMANDS","dim");
+newPrompt();
+
+/* prompt */
+function newPrompt(){
+  const row=document.createElement("div");
+  row.className="prompt";
+  row.innerHTML=`<span>&gt;</span><input autocomplete="off">`;
+  term.appendChild(row);
+  const input=row.querySelector("input");
+  input.focus();
+
+  input.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){
+      const cmd=input.value.trim();
+      row.remove();
+      if(cmd){
+        log("> "+cmd,"cmd");
+        handle(cmd.toLowerCase());
+      }
+      newPrompt();
+    }
+  });
+
+  term.scrollTop=term.scrollHeight;
+}
+
+/* commands */
+function handle(cmd){
+
+  if(cmd==="help"){
+    [
+      "help                              show commands",
+      "version                           show system version",
+      "clear                             clear terminal",
+      "status                            system status",
+      "track all data on pc              fake disk usage",
+      "find <name> database              fake db credentials",
+      "find <username> data              fake game-user profile",
+      "scan network                      fake network scan",
+      "list users                        fake user list",
+      "list processes                    fake running tasks",
+      "dump memory                       fake memory dump",
+      "trace route                       fake trace"
+    ].forEach(c=>log(c,"dim"));
+    return;
+  }
+
+  if(cmd==="version"){
+    log(VERSION,"ok");
+    log("Build: stable","dim");
+    log("Environment: web","dim");
+    return;
+  }
+
+  if(cmd==="clear"){
+    term.innerHTML="";
+    return;
+  }
+
+  if(cmd==="status"){
+    log("CPU: "+(rand(60)+20)+"%","dim");
+    log("RAM: "+(rand(50)+30)+"%","dim");
+    log("DISK IO: ACTIVE","dim");
+    log("SECURITY STATUS: STABLE","ok");
+    return;
+  }
+
+  if(cmd==="track all data on pc"){
+    progress([
+      "Scanning local volumes...",
+      "Indexing files...",
+      "Calculating usage..."
+    ],()=>{
+      const total=512;
+      const used=rand(300)+100;
+      log("Disk C: "+total+" GB","ok");
+      log("Used: "+used+" GB","dim");
+      log("Free: "+(total-used)+" GB","dim");
+      log("Files indexed: "+(rand(200000)+50000),"dim");
+    });
+    return;
+  }
+
+  // find <name> database
+  if(cmd.startsWith("find") && cmd.includes("database")){
+    const target=cmd.replace("find","").replace("database","").trim()||"unknown";
+    progress([
+      "Querying data brokers...",
+      "Locating mirrors...",
+      "Decrypting headers..."
+    ],()=>{
+      log("DATABASE FOUND: "+target.toUpperCase(),"ok");
+      log("Address: "+fakeAddress(),"dim");
+      log("Username: admin","dim");
+      log("Token: "+fakePassword(),"dim");
+      log("Endpoint IP: "+fakeIP(),"dim");
+    });
+    return;
+  }
+
+  // find <username> data
+  // Format: "find <username> data"
+  if(cmd.startsWith("find ") && cmd.endsWith(" data")){
+    const username = cmd.slice(5, -5).trim(); // between "find " and " data"
+    if(!username){
+      log("ERROR: missing username","err");
+      log("Example: find proplayer123 data","dim");
+      return;
+    }
+    progress([
+      "Locating user record...",
+      "Pulling profile blocks...",
+      "Rebuilding session snapshot..."
+    ],()=>{
+      log("PROFILE RESULT (SIMULATED)","ok");
+      log("Username: "+username,"dim");
+      log("User ID: "+fakeUserId(),"dim");
+      log("Auth Token: "+fakePassword(),"dim");
+      log("Joined: "+fakeJoinDate(),"dim");
+    });
+    return;
+  }
+
+  if(cmd==="scan network"){
+    progress([
+      "Mapping interfaces...",
+      "Detecting nodes...",
+      "Analyzing traffic..."
+    ],()=>{
+      for(let i=0;i<5;i++){
+        log("Node "+(i+1)+" → "+fakeIP(),"dim");
+      }
+      log("Network scan complete","ok");
+    });
+    return;
+  }
+
+  if(cmd==="list users"){
+    ["admin","system","guest","service","operator"].forEach(u=>log(u,"dim"));
+    return;
+  }
+
+  if(cmd==="list processes"){
+    ["kernel.exe","netmon.exe","storage.sys","authd","ui-shell"]
+      .forEach(p=>log(p+"  PID:"+rand(9000),"dim"));
+    return;
+  }
+
+  if(cmd==="dump memory"){
+    progress([
+      "Dumping segment 0xA12F",
+      "Dumping segment 0xB77C",
+      "Dumping segment 0xFF91"
+    ],()=>log("Memory dump complete","ok"));
+    return;
+  }
+
+  if(cmd==="trace route"){
+    progress([
+      "Hop 1 → relay",
+      "Hop 2 → anonymizer",
+      "Hop 3 → exit node"
+    ],()=>log("Route terminated","ok"));
+    return;
+  }
+
+  log("Unknown command","err");
+}
+</script>
+</body>
+</html>
