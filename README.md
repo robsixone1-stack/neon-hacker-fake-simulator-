@@ -1,22 +1,41 @@
 # Neon Executor – Simulator
 
-This project is a **cyberpunk-style executor / terminal UI simulator** built for
-learning, UI design, and JavaScript sandbox experiments.
+Neon Executor is a **cyberpunk-style executor UI simulator** built for
+learning, experimentation, and interface design.
 
-## What this is
-- A **fake / simulated executor interface**
-- Runs code only inside a **browser sandbox**
-- Designed as a **demo, UI concept, and educational project**
+It simulates the look and feel of an executor while safely running code
+**only inside a browser sandbox**.
 
-## What this is NOT
+---
+
+## Features
+- Script editor with execute button
+- Sandbox preview (Live Server–style)
+- Floating mod menu (visual only)
+- Console output simulation
+- Clean neon / cyber UI
+
+---
+
+## What this project is
+- A **UI / UX simulator**
+- A **JavaScript sandbox runner**
+- A **demo project** for frontend development
+
+## What this project is NOT
 - ❌ Not a real game executor
-- ❌ Does not inject, attach, or modify games
-- ❌ Does not access real accounts, servers, or services
+- ❌ No injection, exploits, or bypassing
+- ❌ No interaction with real games or accounts
 
-## How to use
-1. Open the website
-2. Paste or edit code in the editor
-3. Click **EXECUTE** to run it in a sandboxed preview
+---
 
-## Disclaimer
-This project is for **educational and demonstration purposes only**.
+## How to download
+
+### Option 1: Download ZIP
+1. Click the **Code** button on GitHub
+2. Select **Download ZIP**
+3. Extract the files
+
+### Option 2: Clone with Git
+```bash
+git clone https://github.com/USERNAME/REPO-NAME.git
